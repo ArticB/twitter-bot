@@ -1,0 +1,23 @@
+{
+  "name": "twitter-bot",
+  "version": "1.0.0",
+  "description": "Fun little twitter bot",
+  "main": "bot.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ArticB/twitter-bot.git"
+  },
+  "keywords": [
+    "Bot",
+    "twitter"
+  ],
+  "author": "Deepraj Pradhan",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ArticB/twitter-bot/issues"
+  },
+  "homepage": "https://github.com/ArticB/twitter-bot#readme"
+}
