@@ -1,7 +1,7 @@
-var Twit = require('twit');
-var config = require('./config');
+// var Twit = require('twit');
+// var config = require('./config');
 
-var T = new Twit(config);
+// var T = new Twit(config);
 
 // T.get('search/tweets', {
 //     q: 'bananas',
@@ -12,7 +12,6 @@ var T = new Twit(config);
 //         console.log(element.text);
 //     });
 // })
-
 
 // T.get('followers/ids', {
 //     screen_name: 'articblade'
@@ -36,8 +35,19 @@ var T = new Twit(config);
 //     }
 // });
 
+var Twit = require('twit');
 
-/* followed event tweet function */
+var config = require('./config');
+
+var T = new Twit(config);
+
+var fs = require("fs");
+
+const proc = require('child_process');
+
+/**
+ * Followed event handler function.
+ */
 
 var stream = T.stream('user');
 
@@ -49,16 +59,12 @@ function followed(eventMsg) {
     tweetIt('Yo, @' + screen_name + ' thank you for following me! #bot');
 }
 
-
-
-//setInterval(tweetIt, 1000 * 20);
-
-//tweetIt("Hello, World! first bot tweet 😊");
-
-/* Tweet Function */
+/**
+ * Text tweet function.
+ */
 
 function tweetIt(txt) {
-    //var r = Math.floor( Math.random(0, 1) * 100);  
+
     T.post('statuses/update', {
         status: txt
     }, function (err, data, response) {
@@ -69,3 +75,60 @@ function tweetIt(txt) {
         }
     })
 }
+
+/**
+ * Image tweet function.
+ */
+
+function tweetImage() {
+
+    var r = Math.floor(Math.random() * 256);
+    var g = Math.floor(Math.random() * 256);
+    var b = Math.floor(Math.random() * 256);
+
+    var com = 'node image.js ' + r + ' ' + g + ' ' + b;
+    proc.exec(com, () => {
+
+        console.log("image created");
+
+    }).on('close', (code) => {
+
+        var b64content = fs.readFileSync('images/output.png', {
+            encoding: 'base64'
+        })
+
+        T.post('media/upload', {
+            media_data: b64content
+        }, function (err, data, response) {
+            if (err) {
+                console.log(err)
+            } else {
+                var mediaIdStr = data.media_id_string;
+                var meta_params = {
+                    media_id: mediaIdStr,
+                    alt_text: {
+                        text: "Small flowers in a planter on a sunny balcony, blossoming."
+                    }
+                }
+
+                T.post('media/metadata/create', meta_params, function (err, data, response) {
+                    if (err) {
+                        console.log(err);
+                    } else {
+                        var params = {
+                            status: 'Random image Red=' + r + ' Green=' + g + ' Blue=' + b + ' #bot',
+                            media_ids: [mediaIdStr]
+                        }
+                        T.post('statuses/update', params, function (err, data, response) {
+                            if(err) {
+                                console.log(err);
+                            }
+                        })
+                    }
+                })
+            }
+        })
+    })
+}
+
+tweetImage();
