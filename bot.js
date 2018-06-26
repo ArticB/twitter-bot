@@ -122,6 +122,8 @@ function tweetImage() {
                         T.post('statuses/update', params, function (err, data, response) {
                             if(err) {
                                 console.log(err);
+                            } else {
+                                console.log("tweet Posted");
                             }
                         })
                     }
@@ -130,5 +132,5 @@ function tweetImage() {
         })
     })
 }
-
 tweetImage();
+setInterval(tweetImage, 1000 * 60 * 5);
