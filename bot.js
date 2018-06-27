@@ -133,4 +133,4 @@ function tweetImage() {
     })
 }
 tweetImage();
-setInterval(tweetImage, 1000 * 60 * 5);
+setInterval(tweetImage, 1000 * 60 * 60 * 2);
