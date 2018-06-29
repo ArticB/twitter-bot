@@ -41,6 +41,8 @@ var config = require('./config');
 
 var T = new Twit(config);
 
+var stream = T.stream('user');
+
 var fs = require("fs");
 
 const proc = require('child_process');
@@ -49,9 +51,10 @@ const proc = require('child_process');
  * Followed event handler function.
  */
 
-var stream = T.stream('user');
+
 
 stream.on('follow', followed);
+stream.on('tweet', reply);
 
 function followed(eventMsg) {
     var name = eventMsg.source.name;
@@ -80,11 +83,7 @@ function tweetIt(txt) {
  * Image tweet function.
  */
 
-function tweetImage() {
-
-    var r = Math.floor(Math.random() * 256);
-    var g = Math.floor(Math.random() * 256);
-    var b = Math.floor(Math.random() * 256);
+function tweetImage(txt, r, g, b) {
 
     var com = 'node image.js ' + r + ' ' + g + ' ' + b;
     proc.exec(com, () => {
@@ -116,12 +115,15 @@ function tweetImage() {
                         console.log(err);
                     } else {
                         var params = {
-                            status: 'Random image Red=' + r + ' Green=' + g + ' Blue=' + b + ' #bot',
+                            //status: 'Random image Red=' + r + ' Green=' + g + ' Blue=' + b + ' #bot',
+                            status: txt,
                             media_ids: [mediaIdStr]
                         }
                         T.post('statuses/update', params, function (err, data, response) {
-                            if(err) {
+                            if (err) {
                                 console.log(err);
+                            } else {
+                                console.log("tweet Posted");
                             }
                         })
                     }
@@ -130,5 +132,22 @@ function tweetImage() {
         })
     })
 }
+//tweetImage();
+//setInterval(tweetImage, 1000 * 60 * 60 * 2);
 
-tweetImage();
+/**
+ * Reply tweet function
+ */
+
+function reply(eventMsg) {
+    console.log("someone tweeted");
+    var r = Math.floor(Math.random() * 256);
+    var g = Math.floor(Math.random() * 256);
+    var b = Math.floor(Math.random() * 256);
+    var replyfrom = eventMsg.user.screen_name;
+    var replyto = eventMsg.in_reply_to_screen_name;
+    var txt = 'hey @'+replyfrom+' here is a random image Red=' + r + ' Green=' + g + ' Blue=' + b + ' #bot';
+    if(replyto === "TweetBot95") {
+        tweetImage(txt, r, g, b);
+    }
+}
